@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ninja Görev Listesi</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Nunito:wght@400;600;700&display=swap');
+
+  :root {
+    --orange: #FF6B00;
+    --dark-orange: #CC4400;
+    --black: #0a0a0a;
+    --dark: #111;
+    --card: #1a1a1a;
+    --gold: #FFD700;
+    --red: #CC0000;
+    --white: #f5f0e8;
+    --shadow: rgba(255,107,0,0.4);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse at top, #1a0800 0%, transparent 60%),
+      repeating-linear-gradient(45deg, transparent, transparent 60px, rgba(255,107,0,0.02) 60px, rgba(255,107,0,0.02) 61px);
+  }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    position: relative;
+  }
+  header h1 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.4rem, 5vw, 2.8rem);
+    color: var(--orange);
+    text-shadow: 0 0 20px var(--shadow), 0 0 40px rgba(255,107,0,0.2);
+    letter-spacing: 2px;
+  }
+  header p {
+    color: #888;
+    margin-top: 6px;
+    font-size: 0.9rem;
+  }
+  .headband {
+    width: 80px; height: 6px;
+    background: linear-gradient(90deg, var(--orange), var(--gold));
+    margin: 12px auto;
+    border-radius: 3px;
+    box-shadow: 0 0 12px var(--shadow);
+  }
+
+  /* PROGRESS BAR */
+  .progress-section {
+    max-width: 600px;
+    margin: 0 auto 24px;
+    padding: 0 20px;
+  }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-bottom: 8px;
+  }
+  .progress-bar-bg {
+    height: 10px;
+    background: #222;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid #333;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--orange), var(--gold));
+    border-radius: 5px;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 8px var(--shadow);
+    width: 0%;
+  }
+
+  /* RANK */
+  .rank-badge {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+    color: var(--gold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 0 0 8px rgba(255,215,0,0.4);
+  }
+
+  /* INPUT */
+  .input-area {
+    max-width: 600px;
+    margin: 0 auto 28px;
+    padding: 0 20px;
+    display: flex;
+    gap: 10px;
+  }
+  .input-area input {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .input-area input:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 12px rgba(255,107,0,0.2);
+  }
+  .input-area input::placeholder { color: #555; }
+  .btn-add {
+    background: linear-gradient(135deg, var(--orange), var(--dark-orange));
+    border: none;
+    border-radius: 10px;
+    padding: 14px 22px;
+    color: white;
+    font-weight: 700;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.3s;
+    box-shadow: 0 4px 16px rgba(255,107,0,0.3);
+  }
+  .btn-add:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 22px rgba(255,107,0,0.5);
+  }
+  .btn-add:active { transform: scale(0.97); }
+
+  /* TODO LIST */
+  .todo-list {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* TODO ITEM */
+  .todo-item {
+    background: var(--card);
+    border: 1px solid #2a2a2a;
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+    animation: slideIn 0.4s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes slideIn {
+    from { opacity:0; transform: translateX(-30px); }
+    to   { opacity:1; transform: translateX(0); }
+  }
+  .todo-item:hover {
+    border-color: #444;
+    transform: translateX(4px);
+  }
+  .todo-item.done {
+    border-color: var(--orange) !important;
+    box-shadow: 0 0 18px rgba(255,107,0,0.15);
+    background: #1e1200;
+  }
+  .todo-item.done .task-text {
+    text-decoration: line-through;
+    color: #666;
+  }
+  .todo-item.removing {
+    animation: explodeOut 0.6s cubic-bezier(.4,0,.2,1) forwards;
+  }
+  @keyframes explodeOut {
+    0%   { opacity:1; transform:scale(1) rotate(0deg); }
+    30%  { opacity:1; transform:scale(1.08) rotate(-2deg); }
+    100% { opacity:0; transform:scale(0.3) rotate(10deg); max-height:0; margin:0; padding:0; border:none; }
+  }
+
+  /* CHECKBOX */
+  .checkbox {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 2px solid #444;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.3s, background 0.3s;
+    font-size: 0.85rem;
+  }
+  .todo-item.done .checkbox {
+    border-color: var(--orange);
+    background: var(--orange);
+  }
+
+  /* CHARACTER SPRITE */
+  .char-sprite {
+    font-size: 2rem;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 6px rgba(255,107,0,0.5));
+    animation: float 3s ease-in-out infinite;
+  }
+  .todo-item:nth-child(2n) .char-sprite { animation-delay: 0.5s; }
+  .todo-item:nth-child(3n) .char-sprite { animation-delay: 1s; }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-5px); }
+  }
+  .todo-item.done .char-sprite {
+    animation: celebrate 0.6s ease-in-out;
+    filter: drop-shadow(0 0 12px rgba(255,215,0,0.8));
+  }
+  @keyframes celebrate {
+    0%   { transform: scale(1) rotate(0); }
+    25%  { transform: scale(1.4) rotate(-10deg); }
+    50%  { transform: scale(1.4) rotate(10deg); }
+    75%  { transform: scale(1.2) rotate(-5deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  /* TASK TEXT */
+  .task-text {
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: color 0.3s;
+    line-height: 1.4;
+  }
+
+  /* DELETE */
+  .btn-del {
+    background: none;
+    border: none;
+    color: #444;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+    flex-shrink: 0;
+  }
+  .btn-del:hover { color: var(--red); background: rgba(204,0,0,0.1); }
+
+  /* CHARACTER POPUP (animasyonlu çıkan karakter) */
+  .char-popup {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999;
+    font-size: 4rem;
+    animation: charFly 1.5s ease-out forwards;
+    filter: drop-shadow(0 0 16px rgba(255,215,0,0.9));
+  }
+  @keyframes charFly {
+    0%   { opacity:1; transform: scale(0.5) translateY(0) rotate(-10deg); }
+    20%  { opacity:1; transform: scale(1.3) translateY(-40px) rotate(8deg); }
+    60%  { opacity:1; transform: scale(1.1) translateY(-120px) rotate(-4deg); }
+    100% { opacity:0; transform: scale(0.6) translateY(-220px) rotate(15deg); }
+  }
+
+  /* QUOTE */
+  .ninja-quote {
+    max-width: 600px;
+    margin: 0 auto 20px;
+    padding: 0 20px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: #555;
+    font-style: italic;
+    transition: opacity 0.5s;
+    min-height: 20px;
+  }
+
+  /* EMPTY */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #444;
+    font-size: 0.9rem;
+  }
+  .empty-state .big { font-size: 3rem; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🥷 Ninja Görev Listesi</h1>
+  <div class="headband"></div>
+  <p>Görevlerini tamamla, ninja rütbeni yükselt!</p>
+</header>
+
+<div class="progress-section">
+  <div class="progress-info">
+    <span id="progressLabel">0 / 0 görev tamamlandı</span>
+    <span id="pct">%0</span>
+  </div>
+  <div class="progress-bar-bg">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+</div>
+
+<div class="rank-badge" id="rankBadge">🎖️ Akademi Öğrencisi</div>
+
+<div class="ninja-quote" id="ninjaQuote">"Çalışmak, azim ve sabır - bu üçü başarının anahtarıdır." — Naruto</div>
+
+<div class="input-area">
+  <input type="text" id="taskInput" placeholder="Yeni görev ekle... (Dattebayo!)" maxlength="100">
+  <button class="btn-add" onclick="addTask()">+</button>
+</div>
+
+<div class="todo-list" id="todoList">
+  <div class="empty-state" id="emptyState">
+    <div class="big">🍃</div>
+    Henüz görev yok. Ninja yolculuğuna başla!
+  </div>
+</div>
+
+<script>
+const CHARACTERS = [
+  { emoji: '🦊', name: 'Kurama', quote: '"Beni güçlü kılan sen değil, seninle olan bağdır." — Kurama' },
+  { emoji: '⚡', name: 'Naruto', quote: '"Vazgeçmek benim stilim değil!" — Naruto' },
+  { emoji: '👁️', name: 'Sasuke', quote: '"Güç, yalnız başarılmaz." — Sasuke' },
+  { emoji: '💚', name: 'Sakura', quote: '"İçimdeki güç hiç bitmeyecek." — Sakura' },
+  { emoji: '🐸', name: 'Jiraiya', quote: '"Harika bir insan olmak - bu en büyük ninjutsu." — Jiraiya' },
+  { emoji: '🌸', name: 'Itachi', quote: '"Affetme, her zaman yanlış ellerde olacak." — Itachi' },
+  { emoji: '⚙️', name: 'Kakashi', quote: '"Hayatta hiçbir şey tesadüf değildir." — Kakashi' },
+  { emoji: '🟤', name: 'Rock Lee', quote: '"Gençlik sadece yaşta değil, kalpte." — Rock Lee' },
+  { emoji: '🕷️', name: 'Shino', quote: '"Her canlının bir amacı vardır." — Shino' },
+  { emoji: '🌊', name: 'Kisame', quote: '"Denizin gücünü hafife alma." — Kisame' },
+  { emoji: '💜', name: 'Hinata', quote: '"Seni korumak için buradayım." — Hinata' },
+  { emoji: '🔥', name: 'Madara', quote: '"Hayaller gerçek olamaz mı?" — Madara' },
+];
+
+const RANKS = [
+  { min: 0,  label: '🎖️ Akademi Öğrencisi' },
+  { min: 10, label: '🟢 Genin' },
+  { min: 30, label: '🔵 Chunin' },
+  { min: 60, label: '🟠 Jonin' },
+  { min: 90, label: '⭐ Kage' },
+  { min: 100,label: '🦊 Hokage' },
+];
+
+let tasks = JSON.parse(localStorage.getItem('naruto-tasks') || '[]');
+let charIndex = 0;
+
+function save() {
+  localStorage.setItem('naruto-tasks', JSON.stringify(tasks));
+}
+
+function getChar(idx) {
+  return CHARACTERS[idx % CHARACTERS.length];
+}
+
+function addTask() {
+  const input = document.getElementById('taskInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const char = getChar(charIndex++);
+  tasks.push({ id: Date.now(), text, done: false, charIdx: charIndex - 1 });
+  save();
+  input.value = '';
+  render();
+  input.focus();
+}
+
+document.getElementById('taskInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addTask();
+});
+
+function toggleTask(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t || t.done) return;
+  t.done = true;
+  save();
+
+  // DOM'da done sınıfı ekle
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (el) {
+    el.classList.add('done');
+    // Karakter popup animasyonu
+    spawnCharacter(el, getChar(t.charIdx));
+    // Karakteri biraz sonra kaldır
+    setTimeout(() => removeTask(id), 1800);
+  }
+  updateUI();
+}
+
+function spawnCharacter(el, char) {
+  const rect = el.getBoundingClientRect();
+  const popup = document.createElement('div');
+  popup.className = 'char-popup';
+  popup.textContent = char.emoji;
+  popup.style.left = (rect.left + rect.width / 2 - 32) + 'px';
+  popup.style.top  = (rect.top + window.scrollY) + 'px';
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 1600);
+
+  // Alıntıyı güncelle
+  document.getElementById('ninjaQuote').textContent = char.quote;
+}
+
+function removeTask(id) {
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (el) {
+    el.classList.add('removing');
+    setTimeout(() => {
+      tasks = tasks.filter(x => x.id !== id);
+      save();
+      render();
+    }, 600);
+  }
+}
+
+function deleteTask(id, e) {
+  e.stopPropagation();
+  tasks = tasks.filter(x => x.id !== id);
+  save();
+  render();
+}
+
+function updateUI() {
+  const total = tasks.length;
+  const done  = tasks.filter(x => x.done).length;
+  const pct   = total === 0 ? 0 : Math.round((done / total) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${done} / ${total} görev tamamlandı`;
+  document.getElementById('pct').textContent = `%${pct}`;
+  const rank = [...RANKS].reverse().find(r => pct >= r.min);
+  document.getElementById('rankBadge').textContent = rank ? rank.label : RANKS[0].label;
+}
+
+function render() {
+  const list = document.getElementById('todoList');
+  const empty = document.getElementById('emptyState');
+  const pending = tasks.filter(x => !x.done);
+
+  if (pending.length === 0) {
+    list.innerHTML = '';
+    list.appendChild(empty || (() => {
+      const d = document.createElement('div');
+      d.className = 'empty-state';
+      d.id = 'emptyState';
+      d.innerHTML = '<div class="big">🍃</div>Henüz görev yok. Ninja yolculuğuna başla!';
+      return d;
+    })());
+    updateUI();
+    return;
+  }
+
+  list.innerHTML = '';
+  pending.forEach(t => {
+    const char = getChar(t.charIdx);
+    const el = document.createElement('div');
+    el.className = 'todo-item' + (t.done ? ' done' : '');
+    el.dataset.id = t.id;
+    el.innerHTML = `
+      <div class="checkbox">${t.done ? '✓' : ''}</div>
+      <div class="char-sprite">${char.emoji}</div>
+      <div class="task-text">${escapeHtml(t.text)}</div>
+      <button class="btn-del" title="Sil">✕</button>
+    `;
+    el.addEventListener('click', () => toggleTask(t.id));
+    el.querySelector('.btn-del').addEventListener('click', (e) => deleteTask(t.id, e));
+    list.appendChild(el);
+  });
+  updateUI();
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+render();
+</script>
+</body>
+</html>
